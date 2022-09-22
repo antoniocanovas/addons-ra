@@ -7,7 +7,7 @@
             <field name="state">code</field>
             <field name="code">
 lineas, facturas, facturas_hechas = [], [], 0
-lineas = record.x_contenido.split('\n')
+lineas = record.data.split('\n')
 
 # Calcular el número de facturas a crear, quitando las líneas vacías:
 for li in lineas:
@@ -72,7 +72,7 @@ for fa in facturas:
                                      (0, 0, {'name':'/','account_id':ccpartner.id,'partner_id':partner.id,'exclude_from_invoice_tab':True})]
 
   # Datos informativos del formulario:
-record.write({'x_facturas_teoricas':len(facturas), 'x_facturas_hechas':facturas_hechas, 'x_fecha':datetime.date.today()})
+record.write({'invoice_export':len(facturas), 'invoice_import':facturas_hechas})
 
             </field>
     </record>
