@@ -68,7 +68,11 @@ for fa in facturas:
       if not producto.id:
         raise UserError('Código clic ' + str(codigoproductoclick) + ' NO ENCONTRADO en los campos barcode')
 
-      newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'tax_ids':producto.taxes_id, 'partner_id':partner.id, 'price_unit':preciolinea}),
+    # Analítica del producto:
+      analytic_id = producto.expense_analytic_account_id.id
+      if move_type in ['in_invoice', 'in_refund']:
+        analytic_id = producto.income_analytic_account_id.id
+      newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'analytic_account_id':analytic_id, 'tax_ids':producto.taxes_id, 'partner_id':partner.id, 'price_unit':preciolinea}),
                                      (0, 0, {'name':'/','account_id':ccpartner.id,'partner_id':partner.id,'exclude_from_invoice_tab':True})]
 
   # Datos informativos del formulario:
