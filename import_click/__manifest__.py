@@ -13,6 +13,7 @@
     "data": ["views/import_click_view.xml",
              "views/menu_view.xml",
              "views/account_move_view.xml",
+             "security/ir.model.access.csv",
              "data/server_action.xml"],
     "installable": True,
 }

@@ -1,2 +1,2 @@
-from . import analytic_account
-from . import repair_order
+from . import account_click
+from . import account_move
