@@ -1,0 +1,80 @@
+<odoo>
+
+    <record id="import_click" model="ir.actions.server">
+            <field name="name">=> Import Click</field>
+            <field name="model_id" ref="account_click"/>
+            <field name="binding_model_id" ref="model_import_click"/>
+            <field name="state">code</field>
+            <field name="code">
+lineas, facturas, facturas_hechas = [], [], 0
+lineas = record.x_contenido.split('\n')
+
+# Calcular el número de facturas a crear, quitando las líneas vacías:
+for li in lineas:
+  if (li[:6] not in facturas) and (li[:1] != ""):
+    facturas.append(li[:6])
+
+# Chequear si todas las facturas tienen línea de cliente o proveedor:
+for fa in facturas:
+  lineapartner = 0
+  for li in lineas:
+    secuencia = li[:6]
+    if (secuencia == fa) and (li[18:19] == '4'):
+      lineapartner = 1
+  if (lineapartner == 0):
+    raise UserError('Factura código ' + fa + ' sin código contable de cliente o proveedor reconocido.')
+
+# Crear facturas, clientes, proveedores y datos del formulario:
+for fa in facturas:
+  ffactura = ""
+  for li in lineas:
+    secuencia = li[:6]
+    if (secuencia == fa) and (li[18:19] == '4'):
+      tipo_factura = li[18:20]
+      ccclick = li[18:26]
+      ffactura = datetime.date(int(li[7:11]), int(li[11:13]), int(li[13:15]))
+      dh = li.split(";")[2]
+
+      # Buscar partner, encontrar o crear:
+    partner = env['res.partner'].search([('ref','ilike',ccclick)])
+    if not partner.id:
+      partner = env['res.partner'].create({'name':ccclick, 'ref':ccclick})
+
+      # Comprobar el tipo de factura y crearla:
+    ccpartner = partner.property_account_payable_id
+    if (dh == 'H'):
+      move_type = 'in_invoice'
+    elif (dh == 'D'):
+      move_type = 'in_refund'
+    if (dh == 'H') and tipo_factura == '43':
+      move_type = 'out_refund'
+      ccpartner = partner.property_account_receivable_id
+    elif (dh== 'D') and tipo_factura == '43':
+      move_type = 'out_invoice'
+      ccpartner = partner.property_account_receivable_id
+
+    # Nueva factura:
+  newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura})
+  facturas_hechas += 1
+
+    # Crear líneas en la factura anterior:
+  for lipro in lineas:
+    secuencia = lipro[:6]
+    if (secuencia == fa) and (lipro[18:19] in ['6','7']):
+      camposlinea = lipro.split(";")
+      preciolinea = float(camposlinea[-1])
+      codigoproductoclick = camposlinea[3]
+      producto = env['product.product'].search([('barcode','=',codigoproductoclick)])
+      if not producto.id:
+        raise UserError('Código clic ' + str(codigoproductoclick) + ' NO ENCONTRADO en los campos barcode')
+
+      newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'tax_ids':producto.taxes_id, 'partner_id':partner.id, 'price_unit':preciolinea}),
+                                     (0, 0, {'name':'/','account_id':ccpartner.id,'partner_id':partner.id,'exclude_from_invoice_tab':True})]
+
+  # Datos informativos del formulario:
+record.write({'x_facturas_teoricas':len(facturas), 'x_facturas_hechas':facturas_hechas, 'x_fecha':datetime.date.today()})
+
+            </field>
+    </record>
+
+</odoo>

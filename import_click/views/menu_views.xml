@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+
+    <record id="action_import_click" model="ir.actions.act_window">
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">action</field>
+        <field name="domain" eval="False"/>
+        <field name="filter" eval="False"/>
+        <field name="groups_id" eval="[(6, 0, [])]"/>
+        <field name="limit">80</field>
+        <field name="name">Importación click</field>
+        <field name="res_model">import.click</field>
+        <field name="search_view_id" eval="False"/>
+        <field name="target">current</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="menu_import_click" model="ir.ui.menu">
+        <field name="action" ref="action_import_click"/>
+        <field name="active" eval="True"/>
+        <field name="groups_id" eval="[(6, 0, [ref('account.group_account_manager')])]"/>
+        <field name="name">Importación click</field>
+        <field name="parent_id" ref="account.menu_finance_entries"/>
+        <field name="sequence">30</field>
+        <field name="web_icon" eval="False"/>
+    </record>
+
+</odoo>
