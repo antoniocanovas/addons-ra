@@ -2,8 +2,8 @@
 
     <record id="import_click" model="ir.actions.server">
             <field name="name">=> Import Click</field>
-            <field name="model_id" ref="account_click"/>
-            <field name="binding_model_id" ref="model_import_click"/>
+            <field name="model_id" ref="model_account_click"/>
+            <field name="binding_model_id" ref="model_account_click"/>
             <field name="state">code</field>
             <field name="code">
 lineas, facturas, facturas_hechas = [], [], 0

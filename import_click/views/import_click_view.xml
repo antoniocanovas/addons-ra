@@ -1,65 +1,61 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!--
-    <record id="custom_repair_order_tree_view" model="ir.ui.view">
-        <field name="name">repair.order.tree.custom</field>
-        <field name="model">repair.order</field>
-        <field name="inherit_id" ref="repair.view_repair_order_tree" />
+    <record id="import_click_form" model="ir.ui.view">
+        <field name="active" eval="True"/>
         <field name="arch" type="xml">
-            <field name="product_id" position="after">
-                <field
-                    name="analytic_account_id"
-                    groups="analytic.group_analytic_accounting"
-                />
-            </field>
+            <form>
+                <!--<header>
+                    <button name="prepare_ocr_post_transactions" string="Import" type="object" class="oe_highlight" />
+                </header>-->
+                <sheet string="Click">
+                    <h2>
+                        <field name="name" placeholder="Nombre . . ."/>
+                    </h2>
+                    <field name="data"/>
+                    <group col="4">
+                        <field name="invoice_export" readonly="1"/>
+                        <field name="invoice_import" readonly="1"/>
+                        <field name="invoice_partner" readonly="1"/>
+                    </group>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread" options="{'post_refresh':'recipients'}"/>
+                </div>
+            </form>
         </field>
+        <field name="field_parent" eval="False"/>
+        <field name="groups_id" eval="[(6, 0, [])]"/>
+        <field name="inherit_id" eval="False"/>
+        <field name="key" eval="False"/>
+        <field name="mode">primary</field>
+        <field name="model">account.click</field>
+        <field name="name">Default form import Click</field>
+        <field name="priority">16</field>
+        <field name="type">form</field>
     </record>
-    <record id="custom_repair_order_form_view" model="ir.ui.view">
-        <field name="name">repair.order.form.custom</field>
-        <field name="model">repair.order</field>
-        <field name="inherit_id" ref="repair.view_repair_order_form" />
+
+    <record id="import_click_tree" model="ir.ui.view">
+        <field name="active" eval="True"/>
         <field name="arch" type="xml">
-            <xpath
-                expr="//field[@name='user_id']"
-                position="after"
-            >
-                <field
-                    name="analytic_account_id"
-                    groups="analytic.group_analytic_accounting"
-                />
-            </xpath>
+            <tree>
+                <field name="name" placeholder="Nombre . . ."/>
+                <field name="invoice_export" readonly="1"/>
+                <field name="invoice_import" readonly="1"/>
+                <field name="invoice_partner" readonly="1"/>
+            </tree>
         </field>
+        <field name="field_parent" eval="False"/>
+        <field name="groups_id" eval="[(6, 0, [])]"/>
+        <field name="inherit_id" eval="False"/>
+        <field name="key" eval="False"/>
+        <field name="mode">primary</field>
+        <field name="model">account.click</field>
+        <field name="name">Default tree import Click</field>
+        <field name="priority">16</field>
+        <field name="type">tree</field>
     </record>
-    <record id="custom_view_repair_order_filter" model="ir.ui.view">
-        <field name="name">repair.order.select.custom</field>
-        <field name="model">repair.order</field>
-        <field name="inherit_id" ref="repair.view_repair_order_form_filter" />
-        <field name="arch" type="xml">
-            <xpath expr='//field[@name="product_id"]' position="after">
-                <field
-                    name="analytic_account_id"
-                    groups="analytic.group_analytic_accounting"
-                />
-            </xpath>
-            <xpath expr="//filter[@name='product']" position="after">
-                <filter
-                    string="Analytic Account"
-                    name="analytic_account"
-                    domain="[]"
-                    context="{'group_by': 'analytic_account_id'}"
-                    groups="analytic.group_analytic_accounting"
-                />
-            </xpath>
-            <xpath expr="//filter[@name='product']" position="after">
-                <filter
-                    string="Analytic Account"
-                    name="analytic_account"
-                    domain="[]"
-                    context="{'group_by': 'analytic_account_id'}"
-                    groups="analytic.group_analytic_accounting"
-                />
-            </xpath>
-        </field>
-    </record>
-    -->
+
 </odoo>
