@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 class AccountClick(models.Model):
-    _name = "account.click"
+    _name = "import.click"
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Click import"
 
