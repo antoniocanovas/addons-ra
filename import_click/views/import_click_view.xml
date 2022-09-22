@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!--
     <record id="custom_repair_order_tree_view" model="ir.ui.view">
         <field name="name">repair.order.tree.custom</field>
         <field name="model">repair.order</field>
@@ -60,4 +61,5 @@
             </xpath>
         </field>
     </record>
+    -->
 </odoo>
