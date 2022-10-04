@@ -26,7 +26,7 @@ for fa in facturas:
 
 # Crear facturas, clientes, proveedores y datos del formulario:
 for fa in facturas:
-  ffactura = ""
+  ffactura, ref_proveedor = "", ""
   for li in lineas:
     secuencia = li[:6]
     if (secuencia == fa) and (li[18:19] == '4'):
@@ -34,11 +34,23 @@ for fa in facturas:
       ccclick = li[18:26]
       ffactura = datetime.date(int(li[7:11]), int(li[11:13]), int(li[13:15]))
       dh = li.split(";")[2]
+      total   = li.split(";")[5]
+      partner = li.split(";")[6]
+      nif     = li.split(";")[7]
+      calle   = li.split(";")[8]
+      ciudad  = li.split(";")[9]
+      provincia = li.split(";")[10]
+      cp = li.split(";")[6]
+
+      if (li[18:20] != '43'):
+        ref_proveedor = li.split(";")[4]
 
       # Buscar partner, encontrar o crear:
-    partner = env['res.partner'].search([('ref','ilike',ccclick)])
+#    partner = env['res.partner'].search([('ref','ilike',ccclick)])
+    partner = env['res.partner'].search([('vat','=',nif)])
     if not partner.id:
-      partner = env['res.partner'].create({'name':ccclick, 'ref':ccclick})
+      partner = env['res.partner'].create({'name':partner, 'ref':ccclick, 'vat':nif, 'street':calle, 'city':ciudad, 'state_id':provincia,
+        'zip':cp})
 
       # Comprobar el tipo de factura y crearla:
     ccpartner = partner.property_account_payable_id
@@ -54,7 +66,7 @@ for fa in facturas:
       ccpartner = partner.property_account_receivable_id
 
     # Nueva factura:
-  newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura})
+  newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura, 'ref':ref_proveedor})
   facturas_hechas += 1
 
     # Crear líneas en la factura anterior:
@@ -68,11 +80,13 @@ for fa in facturas:
       if not producto.id:
         raise UserError('Código clic ' + str(codigoproductoclick) + ' NO ENCONTRADO en los campos barcode')
 
-    # Analítica del producto:
+    # Analítica e impuestos del producto:
       analytic_id = producto.expense_analytic_account_id.id
+      impuestos = producto.taxes_id
       if move_type in ['in_invoice', 'in_refund']:
         analytic_id = producto.income_analytic_account_id.id
-      newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'analytic_account_id':analytic_id, 'tax_ids':producto.taxes_id, 'partner_id':partner.id, 'price_unit':preciolinea}),
+        impuestos = producto.supplier_taxes_id
+      newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'analytic_account_id':analytic_id, 'tax_ids':impuestos, 'partner_id':partner.id, 'price_unit':preciolinea}),
                                      (0, 0, {'name':'/','account_id':ccpartner.id,'partner_id':partner.id,'exclude_from_invoice_tab':True})]
 
   # Datos informativos del formulario:
