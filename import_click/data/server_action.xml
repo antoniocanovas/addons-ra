@@ -7,6 +7,7 @@
             <field name="state">code</field>
             <field name="code">
 lineas, facturas, facturas_hechas = [], [], 0
+payment_mode_id, invoice_payment_term_id = False, False
 lineas = record.data.split('\n')
 
 # Calcular el número de facturas a crear, quitando las líneas vacías:
@@ -45,7 +46,7 @@ for fa in facturas:
       if (li[18:20] != '43'):
         ref_proveedor = li.split(";")[4]
 
-      # Buscar partner, encontrar o crear:
+      # Buscar partner, encontrar o crear (comentada versión 09/2022 por ref click en vez de NIF):
 #    partner = env['res.partner'].search([('ref','ilike',ccclick)])
     partner = env['res.partner'].search([('vat','=',nif)])
     if not partner.id:
@@ -56,6 +57,8 @@ for fa in facturas:
     ccpartner = partner.property_account_payable_id
     if (dh == 'H'):
       move_type = 'in_invoice'
+      invoice_payment_term_id = partner.property_supplier_payment_term_id.id
+      payment_mode_id = partner.supplier_payment_mode_id.id
     elif (dh == 'D'):
       move_type = 'in_refund'
     if (dh == 'H') and tipo_factura == '43':
@@ -64,9 +67,12 @@ for fa in facturas:
     elif (dh== 'D') and tipo_factura == '43':
       move_type = 'out_invoice'
       ccpartner = partner.property_account_receivable_id
+      invoice_payment_term_id = partner.property_payment_term_id.id
+      payment_mode_id = partner.customer_payment_mode_id.id
 
     # Nueva factura:
-  newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura, 'ref':ref_proveedor})
+  newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura, 'ref':ref_proveedor,
+    'payment_mode_id': payment_mode_id, 'invoice_payment_term_id': invoice_payment_term_id})
   facturas_hechas += 1
 
     # Crear líneas en la factura anterior:
@@ -91,6 +97,7 @@ for fa in facturas:
 
   # Datos informativos del formulario:
 record.write({'invoice_export':len(facturas), 'invoice_import':facturas_hechas})
+
 
             </field>
     </record>
