@@ -9,18 +9,23 @@
 lineas, facturas, facturas_hechas = [], [], 0
 payment_mode_id, invoice_payment_term_id = False, False
 lineas = record.data.split('\n')
-
-# Calcular el número de facturas a crear, quitando las líneas vacías:
+# Quitar líneas vacías:
 for li in lineas:
-  if (li[:6] not in facturas) and (li[:1] != ""):
-    facturas.append(li[:6])
+  if (li[:1] == ""): lineas.remove(li)
+
+# Tantas facturas a crear como secuencias distintas:
+for li in lineas:
+  secuencia = li.split(";")[0]
+  if (secuencia not in facturas):
+    facturas.append(secuencia)
 
 # Chequear si todas las facturas tienen línea de cliente o proveedor:
 for fa in facturas:
   lineapartner = 0
   for li in lineas:
-    secuencia = li[:6]
-    if (secuencia == fa) and (li[18:19] == '4'):
+    secuencia = li.split(";")[0]
+    cuentaclick = li.split(";")[3].strip()
+    if (secuencia == fa) and (cuentaclick[:1] == '4'):
       lineapartner = 1
   if (lineapartner == 0):
     raise UserError('Factura código ' + fa + ' sin código contable de cliente o proveedor reconocido.')
@@ -29,75 +34,83 @@ for fa in facturas:
 for fa in facturas:
   ffactura, ref_proveedor = "", ""
   for li in lineas:
-    secuencia = li[:6]
-    if (secuencia == fa) and (li[18:19] == '4'):
-      tipo_factura = li[18:20]
-      ccclick = li[18:26]
-      ffactura = datetime.date(int(li[7:11]), int(li[11:13]), int(li[13:15]))
-      dh = li.split(";")[2]
-      total   = li.split(";")[5]
-      partner = li.split(";")[6]
-      nif     = li.split(";")[7]
-      calle   = li.split(";")[8]
-      ciudad  = li.split(";")[9]
-      provincia = li.split(";")[10]
-      cp = li.split(";")[6]
+    litab = li.split(";")
+    secuencia = litab[0]
+    cuentaclick = litab[3].strip()
+    if (secuencia == fa) and (cuentaclick[:1] == '4'):
+      #raise UserError(litab)
+      tipo_factura = litab[2]
+      ccclick = litab[3][:8]
+      ffacturachar = litab[1]
+      ffactura = datetime.date(int(ffacturachar[:4]), int(ffacturachar[4:6]), int(ffacturachar[6:8]))
+      dh = litab[2]
+      total   = litab[5]
+      partnerclick = litab[6]
+      nif     = litab[7]
+      calle   = litab[8]
+      ciudad  = litab[9]
+      provinciaclick = litab[10].capitalize()
+      cp = litab[11]
+      #raise UserError(provincia)
 
-      if (li[18:20] != '43'):
+      if (cuentaclick[:2] != "43"):
         ref_proveedor = li.split(";")[4]
 
-      # Buscar partner, encontrar o crear (comentada versión 09/2022 por ref click en vez de NIF):
-#    partner = env['res.partner'].search([('ref','ilike',ccclick)])
-    partner = env['res.partner'].search([('vat','=',nif)])
-    if not partner.id:
-      partner = env['res.partner'].create({'name':partner, 'ref':ccclick, 'vat':nif, 'street':calle, 'city':ciudad, 'state_id':provincia,
-        'zip':cp})
+      # Buscar provincia:
+      provincia = env['res.country.state'].search([('name','=',provinciaclick)])
+      if not provincia.id: raise UserError('No existe la provincia en Odoo ' + provincia)
 
-      # Comprobar el tipo de factura y crearla:
-    ccpartner = partner.property_account_payable_id
-    if (dh == 'H'):
-      move_type = 'in_invoice'
-      invoice_payment_term_id = partner.property_supplier_payment_term_id.id
-      payment_mode_id = partner.supplier_payment_mode_id.id
-    elif (dh == 'D'):
-      move_type = 'in_refund'
-    if (dh == 'H') and tipo_factura == '43':
-      move_type = 'out_refund'
-      ccpartner = partner.property_account_receivable_id
-    elif (dh== 'D') and tipo_factura == '43':
-      move_type = 'out_invoice'
-      ccpartner = partner.property_account_receivable_id
-      invoice_payment_term_id = partner.property_payment_term_id.id
-      payment_mode_id = partner.customer_payment_mode_id.id
+      # Buscar partner, encontrar o crear:
+  #    partner = env['res.partner'].search([('ref','ilike',ccclick)])
+      partner = env['res.partner'].search([('vat','=',nif)])
+      if not partner.id:
+        partner = env['res.partner'].create({'name':partnerclick, 'ref':ccclick, 'vat':nif, 'street':calle, 'city':ciudad, 'state_id':provincia.id,'zip':cp})
 
-    # Nueva factura:
-  newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura, 'ref':ref_proveedor,
-    'payment_mode_id': payment_mode_id, 'invoice_payment_term_id': invoice_payment_term_id})
-  facturas_hechas += 1
+        # Comprobar el tipo de factura y crearla:
+      ccpartner = partner.property_account_payable_id
+      if (dh == 'H'):
+        move_type = 'in_invoice'
+        invoice_payment_term_id = partner.property_supplier_payment_term_id.id
+        payment_mode_id = partner.supplier_payment_mode_id.id
+      elif (dh == 'D'):
+        move_type = 'in_refund'
+      if (dh == 'H') and cuentaclick[:2] == '43':
+        move_type = 'out_refund'
+        ccpartner = partner.property_account_receivable_id
+      elif (dh== 'D') and cuentaclick[:2] == '43':
+        move_type = 'out_invoice'
+        ccpartner = partner.property_account_receivable_id
+        invoice_payment_term_id = partner.property_payment_term_id.id
+        payment_mode_id = partner.customer_payment_mode_id.id
 
-    # Crear líneas en la factura anterior:
-  for lipro in lineas:
-    secuencia = lipro[:6]
-    if (secuencia == fa) and (lipro[18:19] in ['6','7']):
-      camposlinea = lipro.split(";")
-      preciolinea = float(camposlinea[-1])
-      codigoproductoclick = camposlinea[3]
-      producto = env['product.product'].search([('barcode','=',codigoproductoclick)])
-      if not producto.id:
-        raise UserError('Código clic ' + str(codigoproductoclick) + ' NO ENCONTRADO en los campos barcode')
+        # Nueva factura:
+      newinvoice = env['account.move'].create({'move_type':move_type, 'partner_id':partner.id, 'invoice_date':ffactura, 'ref':ref_proveedor,
+        'payment_mode_id': payment_mode_id, 'invoice_payment_term_id': invoice_payment_term_id})
+      facturas_hechas += 1
 
-    # Analítica e impuestos del producto:
-      analytic_id = producto.expense_analytic_account_id.id
-      impuestos = producto.taxes_id
-      if move_type in ['in_invoice', 'in_refund']:
-        analytic_id = producto.income_analytic_account_id.id
-        impuestos = producto.supplier_taxes_id
-      newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'analytic_account_id':analytic_id, 'tax_ids':impuestos, 'partner_id':partner.id, 'price_unit':preciolinea}),
-                                     (0, 0, {'name':'/','account_id':ccpartner.id,'partner_id':partner.id,'exclude_from_invoice_tab':True})]
+        # Crear líneas en la factura anterior:
+      for lipro in lineas:
+        liprotab = lipro.split(";")
+        secuencia = liprotab[0]
+        cuentaclick = liprotab[3].strip()
+        if (secuencia == fa) and (cuentaclick[:1] in ['6','7']):
+          preciolinea = float(liprotab[-1])
+          codigoproductoclick = cuentaclick
+          producto = env['product.product'].search([('barcode','=',codigoproductoclick)])
+          if not producto.id:
+            raise UserError('Código clic ' + str(codigoproductoclick) + ' NO ENCONTRADO en los campos barcode')
 
-  # Datos informativos del formulario:
-record.write({'invoice_export':len(facturas), 'invoice_import':facturas_hechas})
+        # Analítica e impuestos del producto:
+          analytic_id = producto.expense_analytic_account_id.id
+          impuestos = producto.taxes_id
+          if move_type in ['in_invoice', 'in_refund']:
+            analytic_id = producto.income_analytic_account_id.id
+            impuestos = producto.supplier_taxes_id
+          newinvoice['invoice_line_ids'] = [(0,0,{'product_id':producto.id, 'analytic_account_id':analytic_id, 'tax_ids':impuestos, 'partner_id':partner.id, 'price_unit':preciolinea}),
+                                         (0, 0, {'name':'/','account_id':ccpartner.id,'partner_id':partner.id,'exclude_from_invoice_tab':True})]
 
+      # Datos informativos del formulario:
+    record.write({'invoice_export':len(facturas), 'invoice_import':facturas_hechas})
 
             </field>
     </record>
