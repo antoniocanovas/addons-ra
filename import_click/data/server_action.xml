@@ -58,7 +58,7 @@ for fa in facturas:
 
       # Buscar provincia:
       provincia = env['res.country.state'].search([('name','=',provinciaclick)])
-      if not provincia.id: raise UserError('No existe la provincia en Odoo ' + provincia)
+      if not provincia.id: raise UserError('No existe la provincia en Odoo ' + provinciaclick)
 
       # Buscar partner, encontrar o crear:
   #    partner = env['res.partner'].search([('ref','ilike',ccclick)])
