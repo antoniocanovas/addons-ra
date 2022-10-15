@@ -56,14 +56,14 @@ for fa in facturas:
       if (cuentaclick[:2] != "43"):
         ref_proveedor = li.split(";")[4]
 
-      # Buscar provincia:
-      provincia = env['res.country.state'].search([('name','=',provinciaclick)])
-      if not provincia.id: raise UserError('No existe la provincia en Odoo ' + provinciaclick)
-
       # Buscar partner, encontrar o crear:
   #    partner = env['res.partner'].search([('ref','ilike',ccclick)])
       partner = env['res.partner'].search([('vat','=',nif)])
       if not partner.id:
+        # Buscar provincia:
+        provincia = env['res.country.state'].search([('name','=',provinciaclick)])
+        if not provincia.id: raise UserError('No existe la provincia en Odoo ' + provinciaclick)
+        # Crear partner:
         partner = env['res.partner'].create({'name':partnerclick, 'ref':ccclick, 'vat':nif, 'street':calle, 'city':ciudad, 'state_id':provincia.id,'zip':cp})
 
         # Comprobar el tipo de factura y crearla:
