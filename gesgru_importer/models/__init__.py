@@ -1,4 +1,4 @@
-from . import gesgru_importer
+from . import res_company
 from . import sale_order_albaran
 
 

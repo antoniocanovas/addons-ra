@@ -1,6 +1,6 @@
 {
     'name': 'Gesgru Importer',
-    'version': '14.0.0.1.0',
+    'version': '15.0.0.0.1',
     'category': '',
     'description': u"""
 
@@ -10,7 +10,6 @@
         'sale_management',
     ],
     'data': [
-        #'security/ir.model.access.csv',
         'views/views.xml',
     ],
     'installable': True,
