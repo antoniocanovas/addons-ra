@@ -64,15 +64,14 @@ class GesgruImporter(models.Model):
                 if not product.id:
                     raise ValidationError('Crea el producto: ' + str(dbf.records[i]["CODIGO"]))
 
-                if sale and product:
+                if sale.id and product.id:
 
-                    po = self.env['sale.order.line'].create({
+                    sol = self.env['sale.order.line'].create({
                         'order_id': sale.id,
                         'product_id': product.id,
                         'product_uom_qty': dbf.records[i]["CANTIDAD"],
                         'price_unit': dbf.records[i]["PRECIO"],
                         'name': dbf.records[i]["DESCRIPCIO"],
-                        'company_id': company_id,
                         'cod_mapfre': dbf.records[i]["IDCONTSER"]
                     })
 
@@ -103,13 +102,3 @@ class GesgruImporter(models.Model):
         self.parseDbfLineasVenta(dbf2)'''
         self.iterateCompanies()
 
-    # def get_purchase_order_data(self):
-    # Abrimos DBF e iteramos por cada fila
-    # Comprobamos si el servicio ya está definido en Odoo buscando en el modelo purchase.order por el nombre de servicio
-    # po = self.env['modelo'].search(["|",('partner_ref', '=', key),], limit=1)
-
-    # Si no está creado lo creamos con fecha y ref
-    # po = self.env['modelo'].create({
-    # 'state': transactions_by_state['FACTURAS'][i]['status'],
-    # 'type': type_doc,
-    # })
