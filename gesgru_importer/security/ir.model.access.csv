@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+#example# access_ocr_transactions, OCR Transactions,model_ocr_transactions,base.group_user,1,1,1,1
