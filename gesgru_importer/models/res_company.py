@@ -18,7 +18,7 @@ class GesgruImporter(models.Model):
         return DBF(path, ignore_missing_memofile=True, load=True)
 
     def parseDbfAlbaranes(self, directory, company_id):
-        dbf = self.getDbf(directory + '/albaran.dbf')
+        dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/albaran.dbf')
         for i in range(len(dbf.records)):
 
             try:
@@ -53,7 +53,7 @@ class GesgruImporter(models.Model):
 
 
     def parseDbfLineasVenta(self, directory, company_id):
-        dbf = self.getDbf(directory + '/contser.dbf')
+        dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/contser.dbf')
         self.env.cr.commit()
         for i in range(len(dbf.records)):
 
