@@ -3,6 +3,7 @@
 from odoo import fields, models, api
 import logging
 from dbfread import DBF
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -59,6 +60,9 @@ class GesgruImporter(models.Model):
             try:
                 sale = self.env['sale.order'].search([('n_rela_ser', '=', str(dbf.records[i]["N_RELA_SER"]))], limit=1)
                 product = self.env['product.product'].search([('default_code', '=', str(dbf.records[i]["CODIGO"]))], limit=1)
+
+                if not product.id:
+                    raise ValidationError('Crea el producto: ' + str(dbf.records[i]["CODIGO"]))
 
                 if sale and product:
 
