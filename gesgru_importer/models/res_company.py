@@ -88,7 +88,8 @@ class GesgruImporter(models.Model):
                             'name': nombre,
                             'cod_mapfre': cod_mapfre
                     })
-                else:
+
+                if product.id and not sale_line.id:
                     sol = self.env['sale.order.line'].create({
                         'order_id': sale.id,
                         'product_id': product.id,
@@ -115,7 +116,6 @@ class GesgruImporter(models.Model):
                         self.parseDbfAlbaranes(iDir, company.id)
                         self.parseDbfLineasVenta(iDir, company.id)
             except:
-                if company.directories != "":
                     self.parseDbfAlbaranes(company.directories, company.id)
                     self.parseDbfLineasVenta(company.directories, company.id)
 
