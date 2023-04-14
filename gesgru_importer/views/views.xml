@@ -9,7 +9,7 @@
                 <page string="Importacion">
                     <group>
                         <field name="directories"/>
-                        <button name="test_action_button" string="Test" type="object" class="btn-primary"/>
+                        <button name="import_all_action_button" string="Importar todas las empresas" type="object" class="btn-primary"/>
                     </group>
                 </page>
             </xpath>

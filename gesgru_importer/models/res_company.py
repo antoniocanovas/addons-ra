@@ -95,7 +95,7 @@ class GesgruImporter(models.Model):
                 self.parseDbfLineasVenta(company.directories, company.id)
 
 
-    def test_action_button(self):
+    def import_all_action_button(self):
         '''dbf = self.getDbf('/opt/odoo/albaran.dbf')
         self.parseDbfAlbaranes(dbf)
         dbf2 = self.getDbf('/opt/odoo/contser.dbf')
