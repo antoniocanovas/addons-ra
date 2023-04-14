@@ -56,10 +56,10 @@ class GesgruImporter(models.Model):
     def parseDbfLineasVenta(self, directory, company_id):
         dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/contser.dbf')
         self.env.cr.commit()
+        products = []
         for i in range(len(dbf.records)):
 
             # Si el producto no existe, que primero lo cree el cliente:
-            products = []
             product = self.env['product.product'].search([('default_code', '=', str(dbf.records[i]["CODIGO"]))], limit=1)
             if not product.id:
                 raise ValidationError('Crea el producto: ' + str(dbf.records[i]["CODIGO"]))
