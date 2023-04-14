@@ -23,7 +23,7 @@ class GesgruImporter(models.Model):
 
             try:
                 name = str(dbf.records[i]["NUMALB"])
-                sale = self.env['sale.order'].search([('name', '=', name), ('company_id', '=', company_id.id))], limit=1)
+                sale = self.env['sale.order'].search([('name', '=', name), ('company_id', '=', company_id.id)], limit=1)
 
                 if not sale.id:
 
