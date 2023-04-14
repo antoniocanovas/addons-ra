@@ -13,3 +13,4 @@ class SaleOrderLineAlbaran(models.Model):
     _inherit = 'sale.order.line'
 
     cod_mapfre = fields.Integer("Codigo Mapfre")
+    cod_servicio = fields.Integer("Codigo Servicio")
