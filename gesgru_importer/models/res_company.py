@@ -78,8 +78,8 @@ class GesgruImporter(models.Model):
 
 
                 if sale_line.id:
-                    if (sale_line.product_id.id != product.id) or (sale_line.product_uom_qty != cantidad)
-                        or (sale_line.price_unit != precio) or (sale_line.name != nombre) or (sale_line.cod_mapfre != cod_mapfre):
+                    if (sale_line.product_id.id != product.id) or (sale_line.product_uom_qty != cantidad) \
+                            or (sale_line.price_unit != precio) or (sale_line.name != nombre) or (sale_line.cod_mapfre != cod_mapfre):
                         sale_line.update({
                             'order_id': sale.id,
                             'product_id': product.id,
