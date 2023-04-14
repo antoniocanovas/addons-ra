@@ -97,6 +97,7 @@ class GesgruImporter(models.Model):
                 message = template.format(type(ex).__name__, ex.args)
 
     def iterateCompanies(self):
+        raise ValidationError('Crea el producto: ')
         companies = self.env['res.company'].search([('directories', '!=', '')])
         for company in companies:
             try:
@@ -111,7 +112,6 @@ class GesgruImporter(models.Model):
 
 
     def import_all_action_button(self):
-        raise ValidationError('Crea el producto: ')
         '''dbf = self.getDbf('/opt/odoo/albaran.dbf')
         self.parseDbfAlbaranes(dbf)
         dbf2 = self.getDbf('/opt/odoo/contser.dbf')
