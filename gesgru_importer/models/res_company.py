@@ -54,6 +54,8 @@ class GesgruImporter(models.Model):
 
 
     def parseDbfLineasVenta(self, directory, company_id):
+        raise ValidationError('Crea el producto:')
+
         dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/contser.dbf')
         self.env.cr.commit()
         for i in range(len(dbf.records)):
@@ -97,7 +99,6 @@ class GesgruImporter(models.Model):
                 message = template.format(type(ex).__name__, ex.args)
 
     def iterateCompanies(self):
-        raise ValidationError('Crea el producto: ')
         companies = self.env['res.company'].search([('directories', '!=', '')])
         for company in companies:
             try:
