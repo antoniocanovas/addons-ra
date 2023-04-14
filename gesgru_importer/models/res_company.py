@@ -60,7 +60,7 @@ class GesgruImporter(models.Model):
         for i in range(len(dbf.records)):
             # Variables:
             codigo, cod_mapfre = str(dbf.records[i]["CODIGO"]),  dbf.records[i]["IDCONTSER"]
-            id_servicio, n_rela_ser = dbf.records[i]["IDSERVICIO"], str(dbf.records[i]["N_RELA_SER"])
+            id_servicio, n_rela_ser = dbf.records[i]["IDCONTSER"], str(dbf.records[i]["N_RELA_SER"])
             cantidad, precio = dbf.records[i]["CANTIDAD"], dbf.records[i]["PRECIO"]
             nombre, cod_mapfre, actualizado = dbf.records[i]["DESCRIPCIO"], dbf.records[i]["IDCONTSER"], True
 
