@@ -19,7 +19,10 @@ class GesgruImporter(models.Model):
 
     def parseDbfAlbaranes(self, directory, company_id):
         dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/albaran.dbf')
+
         for i in range(len(dbf.records)):
+            name, fecha_albarn = dbf.records[i]["NUMALB"], dbf.records[i]["FECHA"]
+            expediente, n_rela_ser = dbf.records[i]["EXPEDIENTE"], dbf.records[i]["N_RELA_SER"]
 
             try:
                 name = str(dbf.records[i]["NUMALB"])
@@ -29,23 +32,20 @@ class GesgruImporter(models.Model):
 
                     so = self.env['sale.order'].create({
                         'partner_id': 1,
-                        'name': dbf.records[i]["NUMALB"],
-                        'fecha_albaran': dbf.records[i]["FECHA"],
-                        'expediente': dbf.records[i]["EXPEDIENTE"],
-                        'n_rela_ser': dbf.records[i]["N_RELA_SER"],
+                        'name': name,
+                        'fecha_albaran': fecha_albarn,
+                        'expediente': expediente,
+                        'n_rela_ser': n_rela_ser,
                         'company_id': company_id
                     })
                     self.env.cr.commit()
 
-    #            else:
-    #                sale.update({
-    #                    'partner_id': 1,
-    #                    'name': dbf.records[i]["NUMALB"],
-    #                    'fecha_albaran': dbf.records[i]["FECHA"],
-    #                    'expediente': dbf.records[i]["EXPEDIENTE"],
-    #                    'n_rela_ser': dbf.records[i]["N_RELA_SER"],
-    #                    'company_id': company_id
-    #                })
+                if (sale.fecha_albaran != fecha_albaran) or (sale.expediente != expediente) or (sale.n_rela_ser != n_rela_ser):
+                    sale.update({
+                        'fecha_albaran': fecha_albaran,
+                        'expediente': expediente,
+                        'n_rela_ser': n_rela_ser,
+                    })
                     self.env.cr.commit()
 
             except Exception as ex:
@@ -98,8 +98,6 @@ class GesgruImporter(models.Model):
             except Exception as ex:
                 template = "- An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
-
-        raise ValidationError(products)
 
     def iterateCompanies(self):
         companies = self.env['res.company'].search([('directories', '!=', '')])
