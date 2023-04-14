@@ -60,13 +60,25 @@ class GesgruImporter(models.Model):
 
             try:
                 sale = self.env['sale.order'].search([('n_rela_ser', '=', str(dbf.records[i]["N_RELA_SER"]))], limit=1)
+                sale_line = self.env['sale.order.line'].search([('cod_mapfre', '=', dbf.records[i]["IDCONTSER"]),
+                                                                ('order_id','=', sale.id)], limit=1)
                 product = self.env['product.product'].search([('default_code', '=', str(dbf.records[i]["CODIGO"]))], limit=1)
 
+                # Si el producto no existe, que primero lo cree el cliente:
                 if not product.id:
                     raise ValidationError('Crea el producto: ' + str(dbf.records[i]["CODIGO"]))
 
-                if sale.id and product.id:
-
+                # Actualización o creación de línea de venta:
+                if sale_line.id:
+                    sale_line.update({
+                        'order_id': sale.id,
+                        'product_id': product.id,
+                        'product_uom_qty': dbf.records[i]["CANTIDAD"],
+                        'price_unit': dbf.records[i]["PRECIO"],
+                        'name': dbf.records[i]["DESCRIPCIO"],
+                        'cod_mapfre': dbf.records[i]["IDCONTSER"]
+                    })
+                else:
                     sol = self.env['sale.order.line'].create({
                         'order_id': sale.id,
                         'product_id': product.id,
