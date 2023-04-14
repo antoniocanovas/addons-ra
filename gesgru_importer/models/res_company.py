@@ -56,41 +56,47 @@ class GesgruImporter(models.Model):
     def parseDbfLineasVenta(self, directory, company_id):
         dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/contser.dbf')
         self.env.cr.commit()
-        products = []
+
         for i in range(len(dbf.records)):
+            # Variables:
+            codigo, cod_mapfre = str(dbf.records[i]["CODIGO"]),  dbf.records[i]["IDCONTSER"]
+            id_servicio, n_rela_ser = dbf.records[i]["IDSERVICIO"], str(dbf.records[i]["N_RELA_SER"])
+            cantidad, precio = dbf.records[i]["CANTIDAD"], dbf.records[i]["PRECIO"]
+            nombre, cod_mapfre, actualizado = dbf.records[i]["DESCRIPCIO"], dbf.records[i]["IDCONTSER"], True
 
             # Si el producto no existe, que primero lo cree el cliente:
-            product = self.env['product.product'].search([('default_code', '=', str(dbf.records[i]["CODIGO"]))], limit=1)
-            if not product.id:
-                raise ValidationError('Crea el producto: ' + str(dbf.records[i]["CODIGO"]))
-            if product.name not in products:
-                products.append(product.name)
+            product = self.env['product.product'].search([('default_code', '=', codigo)], limit=1)
+            if (not product.id) and (codigo != ""):
+                raise ValidationError('Crea el producto: ' + codigo)
 
             # Actualización o creación de línea de venta:
             try:
-                sale = self.env['sale.order'].search([('n_rela_ser', '=', str(dbf.records[i]["N_RELA_SER"]))], limit=1)
-                sale_line = self.env['sale.order.line'].search([('cod_mapfre', '=', dbf.records[i]["IDCONTSER"]),
-                                                                ('cod_servicio','=', dbf.records[i]["IDSERVICIO"]),
+                sale = self.env['sale.order'].search([('n_rela_ser', '=', n_rela_ser)], limit=1)
+                sale_line = self.env['sale.order.line'].search([('cod_mapfre', '=', cod_mapfre),
+                                                                ('cod_servicio','=', id_servicio),
                                                                 ('order_id','=', sale.id)], limit=1)
 
+
                 if sale_line.id:
-                    sale_line.update({
-                        'order_id': sale.id,
-                        'product_id': product.id,
-                        'product_uom_qty': dbf.records[i]["CANTIDAD"],
-                        'price_unit': dbf.records[i]["PRECIO"],
-                        'name': dbf.records[i]["DESCRIPCIO"],
-                        'cod_mapfre': dbf.records[i]["IDCONTSER"]
+                    if (sale_line.product_id.id != product.id) or (sale_line.product_uom_qty != cantidad)
+                        or (sale_line.price_unit != precio) or (sale_line.name != nombre) or (sale_line.cod_mapfre != cod_mapfre):
+                        sale_line.update({
+                            'order_id': sale.id,
+                            'product_id': product.id,
+                            'product_uom_qty': cantidad,
+                            'price_unit': precio,
+                            'name': nombre,
+                            'cod_mapfre': cod_mapfre
                     })
                 else:
                     sol = self.env['sale.order.line'].create({
                         'order_id': sale.id,
                         'product_id': product.id,
-                        'product_uom_qty': dbf.records[i]["CANTIDAD"],
-                        'price_unit': dbf.records[i]["PRECIO"],
-                        'name': dbf.records[i]["DESCRIPCIO"],
-                        'cod_mapfre': dbf.records[i]["IDCONTSER"],
-                        'cod_servicio': dbf.records[i]["IDSERVICIO"],
+                        'product_uom_qty': cantidad,
+                        'price_unit': precio,
+                        'name': nombre,
+                        'cod_mapfre': cod_mapfre,
+                        'cod_servicio': id_servicio,
                     })
 
                 self.env.cr.commit()
