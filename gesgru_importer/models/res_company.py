@@ -24,7 +24,7 @@ class GesgruImporter(models.Model):
             try:
                 sale = self.env['sale.order'].search([('name', '=', str(dbf.records[i]["NUMALB"])), ('company_id', '=', str(company_id))], limit=1)
 
-                if not sale:
+                if not sale.id:
 
                     so = self.env['sale.order'].create({
                         'partner_id': 1,
@@ -37,7 +37,7 @@ class GesgruImporter(models.Model):
                     self.env.cr.commit()
 
                 else:
-                    so = self.env['sale.order'].update({
+                    sale.update({
                         'partner_id': 1,
                         'name': dbf.records[i]["NUMALB"],
                         'fecha_albaran': dbf.records[i]["FECHA"],
