@@ -59,10 +59,12 @@ class GesgruImporter(models.Model):
         for i in range(len(dbf.records)):
 
             # Si el producto no existe, que primero lo cree el cliente:
+            products = []
             product = self.env['product.product'].search([('default_code', '=', str(dbf.records[i]["CODIGO"]))], limit=1)
             if not product.id:
                 raise ValidationError('Crea el producto: ' + str(dbf.records[i]["CODIGO"]))
-            raise ValidationError(product.name)
+            if product.name not in products:
+                products.append(product.name)
 
             # Actualización o creación de línea de venta:
             try:
@@ -96,6 +98,8 @@ class GesgruImporter(models.Model):
             except Exception as ex:
                 template = "- An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(ex).__name__, ex.args)
+
+            raise ValidationError(products)
 
     def iterateCompanies(self):
         companies = self.env['res.company'].search([('directories', '!=', '')])
