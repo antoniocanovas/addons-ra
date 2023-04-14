@@ -37,15 +37,15 @@ class GesgruImporter(models.Model):
                     })
                     self.env.cr.commit()
 
-                else:
-                    sale.update({
-                        'partner_id': 1,
-                        'name': dbf.records[i]["NUMALB"],
-                        'fecha_albaran': dbf.records[i]["FECHA"],
-                        'expediente': dbf.records[i]["EXPEDIENTE"],
-                        'n_rela_ser': dbf.records[i]["N_RELA_SER"],
-                        'company_id': company_id
-                    })
+    #            else:
+    #                sale.update({
+    #                    'partner_id': 1,
+    #                    'name': dbf.records[i]["NUMALB"],
+    #                    'fecha_albaran': dbf.records[i]["FECHA"],
+    #                    'expediente': dbf.records[i]["EXPEDIENTE"],
+    #                    'n_rela_ser': dbf.records[i]["N_RELA_SER"],
+    #                    'company_id': company_id
+    #                })
                     self.env.cr.commit()
 
             except Exception as ex:
