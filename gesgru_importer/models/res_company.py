@@ -115,8 +115,9 @@ class GesgruImporter(models.Model):
                         self.parseDbfAlbaranes(iDir, company.id)
                         self.parseDbfLineasVenta(iDir, company.id)
             except:
-                self.parseDbfAlbaranes(company.directories, company.id)
-                self.parseDbfLineasVenta(company.directories, company.id)
+                if company.directories != "":
+                    self.parseDbfAlbaranes(company.directories, company.id)
+                    self.parseDbfLineasVenta(company.directories, company.id)
 
 
     def import_all_action_button(self):
