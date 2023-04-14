@@ -67,7 +67,7 @@ class GesgruImporter(models.Model):
             try:
                 sale = self.env['sale.order'].search([('n_rela_ser', '=', str(dbf.records[i]["N_RELA_SER"]))], limit=1)
                 sale_line = self.env['sale.order.line'].search([('cod_mapfre', '=', dbf.records[i]["IDCONTSER"]),
-                                                                ('cod_servicio','=' dbf.records[i]["IDSERVICIO"]),
+                                                                ('cod_servicio','=', dbf.records[i]["IDSERVICIO"]),
                                                                 ('order_id','=', sale.id)], limit=1)
 
                 if sale_line.id:
