@@ -17,13 +17,13 @@ class GesgruImporter(models.Model):
     def getDbf(self, path):
         return DBF(path, ignore_missing_memofile=True, load=True)
 
-    def parseDbfAlbaranes(self, directory, company_id):
+    def parseDbfAlbaranes(self, directory, company.id):
         dbf = self.getDbf('/opt/odoo/clientes/elranero/' + directory + '/albaran.dbf')
         for i in range(len(dbf.records)):
 
             try:
                 name = str(dbf.records[i]["NUMALB"])
-                sale = self.env['sale.order'].search([('name', '=', name), ('company_id', '=', company_id.id)], limit=1)
+                sale = self.env['sale.order'].search([('name', '=', name), ('company_id', '=', company.id)], limit=1)
 
                 if not sale.id:
 
